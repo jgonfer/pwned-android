@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_manual"
+            android:icon="@drawable/ic_menu_search"
+            android:title="@string/nav_menu_search_title"
+            android:checked="true"/>
+        <item
+            android:id="@+id/nav_ranking"
+            android:icon="@drawable/ic_menu_ranking"
+            android:title="@string/nav_menu_ranking_title"/>
+        <item
+            android:id="@+id/nav_password"
+            android:icon="@drawable/ic_menu_creator"
+            android:title="@string/nav_menu_password_title"/>
+        <item
+            android:id="@+id/nav_donate"
+            android:icon="@drawable/ic_menu_donate"
+            android:title="@string/nav_menu_donate_title"/>
+    </group>
+
+    <group android:id="@+id/grp1" android:checkableBehavior="single" >
+        <item
+            android:id="@+id/nav_share"
+            android:title="Share"/>
+        <item
+            android:id="@+id/nav_send"
+            android:title="Send"/>
+    </group>
+
+</menu>

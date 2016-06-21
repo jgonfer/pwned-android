@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#2A373E</color>
+    <color name="colorPrimaryDark">#455A64</color>
+    <color name="colorAccent">#E11002</color>
+    <color name="darkGrey">#2A373E</color>
+    <color name="mediumGrey">#455A64</color>
+    <color name="errorRed">#E11002</color>
+
+    <color name="white">#FFFFFF</color>
+
+<!-- Red Color -->
+<color name="colorPrimaryRed">#FF1744</color>
+<color name="colorPrimaryDarkRed">#D50000</color>
+<color name="colorAccentRed">#FF8A80</color>
+
+<!-- Pink Color -->
+<color name="colorPrimaryPink">#F50057</color>
+<color name="colorPrimaryDarkPink">#C51162</color>
+<color name="colorAccentPink">#FF80AB</color>
+
+<!-- Purple Color -->
+<color name="colorPrimaryPurple">#D500F9</color>
+<color name="colorPrimaryDarkPurple">#AA00FF</color>
+<color name="colorAccentPurple">#EA80FC</color>
+
+<!-- Deep Purple Color -->
+<color name="colorPrimaryDeepPurple">#651FFF</color>
+<color name="colorPrimaryDarkDeepPurple">#6200EA</color>
+<color name="colorAccentDeepPurple">#B388FF</color>
+
+<!-- Indigo Color -->
+<color name="colorPrimaryIndigo">#3D5AFE</color>
+<color name="colorPrimaryDarkIndigo">#304FFE</color>
+<color name="colorAccentIndigo">#8C9EFF</color>
+
+<!-- Blue Color -->
+<color name="colorPrimaryBlue">#2979FF</color>
+<color name="colorPrimaryDarkBlue">#2962FF</color>
+<color name="colorAccentBlue">#82B1FF</color>
+
+<!-- Light Blue Color -->
+<color name="colorPrimaryLightBlue">#00B0FF</color>
+<color name="colorPrimaryDarkLightBlue">#0091EA</color>
+<color name="colorAccentLightBlue">#80D8FF</color>
+
+<!-- Cyan Color -->
+<color name="colorPrimaryCyan">#00E5FF</color>
+<color name="colorPrimaryDarkCyan">#00B8D4</color>
+<color name="colorAccentCyan">#84FFFF</color>
+
+<!-- Teal Color -->
+<color name="colorPrimaryTeal">#1DE9B6</color>
+<color name="colorPrimaryDarkTeal">#00BFA5</color>
+<color name="colorAccentTeal">#A7FFEB</color>
+
+<!-- Green Color -->
+<color name="colorPrimaryGreen">#00E676</color>
+<color name="colorPrimaryDarkGreen">#00C853</color>
+<color name="colorAccentGreen">#B9F6CA</color>
+
+<!-- Light Green Color -->
+<color name="colorPrimaryLightGreen">#76FF03</color>
+<color name="colorPrimaryDarkLightGreen">#64DD17</color>
+<color name="colorAccentLightGreen">#CCFF90</color>
+
+<!-- Lime Color -->
+<color name="colorPrimaryLime">#C6FF00</color>
+<color name="colorPrimaryDarkLime">#AEEA00</color>
+<color name="colorAccentLime">#F4FF81</color>
+
+<!-- Yellow Color -->
+<color name="colorPrimaryYellow">#FFEA00</color>
+<color name="colorPrimaryDarkYellow">#FFD600</color>
+<color name="colorAccentYellow">#FFFF8D</color>
+
+<!-- Amber Color -->
+<color name="colorPrimaryAmber">#FFC400</color>
+<color name="colorPrimaryDarkAmber">#FFAB00</color>
+<color name="colorAccentAmber">#FFE57F</color>
+
+<!-- Orange Color -->
+<color name="colorPrimaryOrange">#FF9100</color>
+<color name="colorPrimaryDarkOrange">#FF6D00</color>
+<color name="colorAccentOrange">#FFD180</color>
+
+<!-- Deep Orange Color -->
+<color name="colorPrimaryDeepOrange">#FF3D00</color>
+<color name="colorPrimaryDarkDeepOrange">#DD2C00</color>
+<color name="colorAccentDeepOrange">#FF9E80</color>
+
+<!-- Brown Color -->
+<color name="colorPrimaryBrown">#8D6E63</color>
+<color name="colorPrimaryDarkBrown">#5D4037</color>
+<color name="colorAccentBrown">#D7CCC8</color>
+
+<!-- Grey Color -->
+<color name="colorPrimaryGrey">#BDBDBD</color>
+<color name="colorPrimaryGreyLight">#DDDDDD</color>
+<color name="colorPrimaryDarkGrey">#616161</color>
+<color name="colorAccentGrey">#F5F5F5</color>
+
+<!-- Blue Grey Color -->
+<color name="colorPrimaryBlueGrey">#78909C</color>
+<color name="colorPrimaryDarkBlueGrey">#455A64</color>
+<color name="colorAccentBlueGrey">#CFD8DC</color>
+
+<!-- Black Color -->
+<color name="colorPrimaryBlack">#000000</color>
+<color name="colorPrimaryDarkBlack">#000000</color>
+<color name="colorAccentBlack">#FFFFFF</color>
+
+
+
+<!-- Do not change: Fixed Color -->
+<color name="textColorPrimary">#FFFFFF</color>
+<color name="windowBackground">#FFFFFF</color>
+<color name="navigationBarColor">#000000</color>
+
+</resources>

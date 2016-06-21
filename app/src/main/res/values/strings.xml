@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Pwned</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="search_edit_text_placeholder">Enter a username or email</string>
+
+    <!-- Menu -->
+    <string name="nav_menu_search_title">Search</string>
+    <string name="nav_menu_ranking_title">Ranking</string>
+    <string name="nav_menu_password_title">Creator</string>
+    <string name="nav_menu_donate_title">Donate</string>
+
+    <!-- Info Tip -->
+    <string name="info_tip_title_good_news">Good news!</string>
+    <string name="info_tip_description_good_news">No breached accounts and no pastes have been found.</string>
+    <string name="info_tip_title_oh_no">Oh no!</string>
+    <string name="info_tip_description_oh_no">%d breached account(s) or paste(s) have been found.</string>
+    <string name="info_tip_title_sensitive_breaches">Sensitive breaches</string>
+    <string name="info_tip_description_sensitive_breaches">Certain breaches are particularly sensitive in that someone\'s presence in the breach may adversely impact them if others are able to find that they were a member of the site. These breaches are classed as \"sensitive\" and may not be publicly searched.</string>
+    <string name="info_tip_title_retired_breaches">Retired breaches</string>
+    <string name="info_tip_description_retired_breaches">A retired breach is typically one where the data does not appear in other locations on the web, that is it\'s not being traded or redistributed.</string>
+    <string name="info_tip_show_me">Show me</string>
+
+</resources>
