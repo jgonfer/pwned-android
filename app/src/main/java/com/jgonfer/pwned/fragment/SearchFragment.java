@@ -94,9 +94,6 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
 
         unbinder = ButterKnife.bind(this, rootView);
 
-        //email = RealmHelper.getLastEmailSearched();
-        //emailInEditText = RealmHelper.getLastEmailWritten();
-
         if (mRecyclerView != null) {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
             mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(mContext, mRecyclerView, new ClickListener() {
@@ -280,20 +277,11 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
-        //RealmHelper.setLastEmailSearched(email);
-        //RealmHelper.setLastEmailWritten(getEmailFromSearchEditText());
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            email = savedInstanceState.getString("email");
-            emailInEditText = savedInstanceState.getString("emailInEditText");
-            refreshListViewData(true);
-        }
     }
 
     @Override

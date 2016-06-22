@@ -14,8 +14,6 @@ import android.view.MenuItem;
 
 import com.jgonfer.pwned.R;
 import com.jgonfer.pwned.connection.requests.AllBreachedServicesListRequest;
-import com.jgonfer.pwned.fragment.BaseFragment;
-import com.jgonfer.pwned.fragment.HistoryFragment;
 import com.jgonfer.pwned.fragment.PasswordFragment;
 import com.jgonfer.pwned.fragment.RankingFragment;
 import com.jgonfer.pwned.fragment.SearchFragment;
@@ -24,7 +22,7 @@ import com.jgonfer.pwned.utils.RealmHelper;
 import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FragmentManager.OnBackStackChangedListener, AllBreachedServicesListRequest.OnLoginResponseListener {
+        implements AllBreachedServicesListRequest.OnLoginResponseListener {
 
     AllBreachedServicesListRequest mAllBreachedServiceListRequest;
 
@@ -49,12 +47,11 @@ public class MainActivity extends BaseActivity
         toggle.syncState();
 
         nvDrawer = (NavigationView) findViewById(R.id.nav_view);
-        nvDrawer.setNavigationItemSelectedListener(this);
 
         setupDrawerContent(nvDrawer);
 
         displayedView = RealmHelper.getDisplayedView();
-        displayView(displayedView);
+        displayView(displayedView, false);
         setTitleForNavigationView(false);
 
         /*
@@ -96,10 +93,7 @@ public class MainActivity extends BaseActivity
         displayedView = menuItem.getItemId();
         RealmHelper.setDisplayedView(displayedView);
         displayedFragment = null;
-        final FragmentManager fragmentManager = getSupportFragmentManager();
-        String title = setTitleForNavigationView(false);
-        Fragment fragmentRecovered = fragmentManager.findFragmentByTag(title);
-        displayView(menuItem.getItemId());
+        displayView(menuItem.getItemId(), true);
 
         // Highlight the selected item has been done by NavigationView
         menuItem.setChecked(true);
@@ -110,13 +104,13 @@ public class MainActivity extends BaseActivity
         mDrawer.closeDrawers();
     }
 
-    public void displayView(int itemId) {
+    public void displayView(int itemId, boolean isDrawerItem) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Class fragmentClass;
         FragmentManager fragmentManager = getSupportFragmentManager();
         String title = setTitleForNavigationView(false);
         Fragment fragmentRecovered = fragmentManager.findFragmentByTag(title);
-        if (fragmentRecovered == null) {
+        if (fragmentRecovered == null || isDrawerItem) {
             int fragmentstoPopBackCounter = fragmentManager.getBackStackEntryCount() - 1;
             String fragmentTitle = getResources().getString(R.string.nav_menu_search_title);
 
@@ -250,53 +244,6 @@ public class MainActivity extends BaseActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem menuItem) {
-        // Create a new fragment and specify the fragment to show based on nav item clicked
-        Class fragmentClass;
-        switch(menuItem.getItemId()) {
-            case R.id.nav_manual:
-                fragmentClass = SearchFragment.class;
-                break;
-            case R.id.nav_ranking:
-                fragmentClass = HistoryFragment.class;
-                break;
-            case R.id.nav_password:
-                fragmentClass = PasswordFragment.class;
-                break;
-            default:
-                fragmentClass = SearchFragment.class;
-        }
-
-        try {
-            displayedFragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.flContent, displayedFragment).commit();
-
-        // Highlight the selected item has been done by NavigationView
-        menuItem.setChecked(true);
-        // Set action bar title
-        setTitle(menuItem.getTitle());
-        // Close the navigation drawer
-        mDrawer.closeDrawers();
-
-        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawer.closeDrawer(GravityCompat.START);
-
-        return true;
-    }
-
-    @Override
-    public void onBackStackChanged() {
-        Log.d(MainActivity.class.getSimpleName(), "onBackStackChanged()");
     }
 
     @Override
