@@ -102,10 +102,8 @@ public class RankingFragment extends BaseFragment implements AllBreachedServices
         } else if (mAllBreachedServiceListRequest.getBreachedServiceListRequestCallback() == null) {
             mAllBreachedServiceListRequest.setBreachedServiceListRequestCallback(this);
         }
-        if (mBreachedServices != null && mBreachedServices.length == 0) {
-            mAllBreachedServiceListRequest.getAllBreachedServices(this);
-        }
-
+        mAllBreachedServiceListRequest.getAllBreachedServices(this);
+        
         return rootView;
     }
 
