@@ -84,6 +84,8 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
 
         slideDown = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_down);
         slideUp = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_up);
+
+        setRetainInstance(true);
     }
 
     @Override
@@ -92,8 +94,8 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
 
         unbinder = ButterKnife.bind(this, rootView);
 
-        email = RealmHelper.getLastEmailSearched();
-        emailInEditText = RealmHelper.getLastEmailWritten();
+        //email = RealmHelper.getLastEmailSearched();
+        //emailInEditText = RealmHelper.getLastEmailWritten();
 
         if (mRecyclerView != null) {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
@@ -279,8 +281,8 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        RealmHelper.setLastEmailSearched(email);
-        RealmHelper.setLastEmailWritten(getEmailFromSearchEditText());
+        //RealmHelper.setLastEmailSearched(email);
+        //RealmHelper.setLastEmailWritten(getEmailFromSearchEditText());
     }
 
     @Override
