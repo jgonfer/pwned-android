@@ -14,7 +14,6 @@ import android.view.MenuItem;
 
 import com.jgonfer.pwned.R;
 import com.jgonfer.pwned.connection.requests.AllBreachedServicesListRequest;
-import com.jgonfer.pwned.fragment.HistoryFragment;
 import com.jgonfer.pwned.fragment.PasswordFragment;
 import com.jgonfer.pwned.fragment.RankingFragment;
 import com.jgonfer.pwned.fragment.SearchFragment;
@@ -23,7 +22,7 @@ import com.jgonfer.pwned.utils.RealmHelper;
 import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AllBreachedServicesListRequest.OnLoginResponseListener {
+        implements AllBreachedServicesListRequest.OnLoginResponseListener {
 
     AllBreachedServicesListRequest mAllBreachedServiceListRequest;
 
@@ -48,12 +47,11 @@ public class MainActivity extends BaseActivity
         toggle.syncState();
 
         nvDrawer = (NavigationView) findViewById(R.id.nav_view);
-        nvDrawer.setNavigationItemSelectedListener(this);
 
         setupDrawerContent(nvDrawer);
 
         displayedView = RealmHelper.getDisplayedView();
-        displayView(displayedView);
+        displayView(displayedView, false);
         setTitleForNavigationView(false);
 
         /*
@@ -91,11 +89,11 @@ public class MainActivity extends BaseActivity
 
 
 
-    public void selectDrawerItem(MenuItem menuItem) {
+    public void selectDrawerItem(final MenuItem menuItem) {
         displayedView = menuItem.getItemId();
         RealmHelper.setDisplayedView(displayedView);
         displayedFragment = null;
-        displayView(menuItem.getItemId());
+        displayView(menuItem.getItemId(), true);
 
         // Highlight the selected item has been done by NavigationView
         menuItem.setChecked(true);
@@ -106,52 +104,57 @@ public class MainActivity extends BaseActivity
         mDrawer.closeDrawers();
     }
 
-    public void displayView(int itemId) {
+    public void displayView(int itemId, boolean isDrawerItem) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Class fragmentClass;
         FragmentManager fragmentManager = getSupportFragmentManager();
-        int fragmentstoPopBackCounter = fragmentManager.getBackStackEntryCount() - 1;
-        String fragmentTitle = getResources().getString(R.string.nav_menu_search_title);
+        String title = setTitleForNavigationView(false);
+        Fragment fragmentRecovered = fragmentManager.findFragmentByTag(title);
+        if (fragmentRecovered == null || isDrawerItem) {
+            int fragmentstoPopBackCounter = fragmentManager.getBackStackEntryCount() - 1;
+            String fragmentTitle = getResources().getString(R.string.nav_menu_search_title);
 
-        switch(itemId) {
-            case R.id.nav_manual:
-                fragmentClass = SearchFragment.class;
-                fragmentstoPopBackCounter++;
-                break;
-            case R.id.nav_ranking:
-                fragmentClass = RankingFragment.class;
-                fragmentTitle = getResources().getString(R.string.nav_menu_ranking_title);
-                break;
-            case R.id.nav_password:
-                fragmentClass = PasswordFragment.class;
-                fragmentTitle = getResources().getString(R.string.nav_menu_password_title);
-                break;
-            case R.id.nav_donate:
-                fragmentClass = PasswordFragment.class;
-                fragmentTitle = getResources().getString(R.string.nav_menu_donate_title);
-                break;
-            default:
-                fragmentClass = SearchFragment.class;
-        }
-
-        if (displayedFragment == null) {
-            try {
-                displayedFragment = (Fragment) fragmentClass.newInstance();
-            } catch (Exception e) {
-                e.printStackTrace();
+            switch(itemId) {
+                case R.id.nav_manual:
+                    fragmentClass = SearchFragment.class;
+                    fragmentstoPopBackCounter++;
+                    break;
+                case R.id.nav_ranking:
+                    fragmentClass = RankingFragment.class;
+                    fragmentTitle = getResources().getString(R.string.nav_menu_ranking_title);
+                    break;
+                case R.id.nav_password:
+                    fragmentClass = PasswordFragment.class;
+                    fragmentTitle = getResources().getString(R.string.nav_menu_password_title);
+                    break;
+                case R.id.nav_donate:
+                    fragmentClass = PasswordFragment.class;
+                    fragmentTitle = getResources().getString(R.string.nav_menu_donate_title);
+                    break;
+                default:
+                    fragmentClass = SearchFragment.class;
             }
-        }
 
-        // Insert the fragment by replacing any existing fragment
-        for (int i = 0; i < fragmentstoPopBackCounter; ++i) {
-            fragmentManager.popBackStack();
-        }
-        fragmentManager.beginTransaction()
-                .replace(R.id.flContent, displayedFragment)
-                .addToBackStack(fragmentTitle)
-                .commit();
+            if (displayedFragment == null) {
+                try {
+                    displayedFragment = (Fragment) fragmentClass.newInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
 
-        setTitleForNavigationView(false);
+            // Insert the fragment by replacing any existing fragment
+            for (int i = 0; i < fragmentstoPopBackCounter; ++i) {
+                fragmentManager.popBackStack();
+            }
+
+            title = setTitleForNavigationView(false);
+
+            fragmentManager.beginTransaction()
+                    .replace(R.id.flContent, displayedFragment, title)
+                    .addToBackStack(fragmentTitle)
+                    .commit();
+        }
     }
 
     public CompositeSubscription getCompositeSubscription() {
@@ -162,29 +165,35 @@ public class MainActivity extends BaseActivity
         return this.mCompositeSubscription;
     }
 
-    private void setTitleForNavigationView(boolean isBackPressed) {
+    private String setTitleForNavigationView(boolean isBackPressed) {
+        String title = getResources().getString(R.string.nav_menu_search_title);
         if (isBackPressed) {
             switch (displayedView) {
                 case R.id.nav_manual:
-                    setTitle(getResources().getString(R.string.nav_menu_search_title));
+                    title = getResources().getString(R.string.nav_menu_search_title);
+                    setTitle(title);
                     break;
                 case R.id.nav_ranking:
-                    setTitle(getResources().getString(R.string.nav_menu_ranking_title));
+                    title = getResources().getString(R.string.nav_menu_ranking_title);
+                    setTitle(title);
                     break;
                 case R.id.nav_password:
-                    setTitle(getResources().getString(R.string.nav_menu_password_title));
+                    title = getResources().getString(R.string.nav_menu_password_title);
+                    setTitle(title);
                     break;
                 case R.id.nav_donate:
-                    setTitle(getResources().getString(R.string.nav_menu_donate_title));
+                    title = getResources().getString(R.string.nav_menu_donate_title);
+                    setTitle(title);
                     break;
             }
         } else {
             if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                 FragmentManager.BackStackEntry entry = getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1);
-                String name = entry.getName();
-                setTitle(name);
+                title = entry.getName();
+                setTitle(title);
             }
         }
+        return title;
     }
 
     @Override
@@ -235,48 +244,6 @@ public class MainActivity extends BaseActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem menuItem) {
-        // Create a new fragment and specify the fragment to show based on nav item clicked
-        Class fragmentClass;
-        switch(menuItem.getItemId()) {
-            case R.id.nav_manual:
-                fragmentClass = SearchFragment.class;
-                break;
-            case R.id.nav_ranking:
-                fragmentClass = HistoryFragment.class;
-                break;
-            case R.id.nav_password:
-                fragmentClass = PasswordFragment.class;
-                break;
-            default:
-                fragmentClass = SearchFragment.class;
-        }
-
-        try {
-            displayedFragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.flContent, displayedFragment).commit();
-
-        // Highlight the selected item has been done by NavigationView
-        menuItem.setChecked(true);
-        // Set action bar title
-        setTitle(menuItem.getTitle());
-        // Close the navigation drawer
-        mDrawer.closeDrawers();
-
-        mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawer.closeDrawer(GravityCompat.START);
-
-        return true;
     }
 
     @Override
