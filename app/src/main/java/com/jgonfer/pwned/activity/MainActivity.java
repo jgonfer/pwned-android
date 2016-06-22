@@ -1,5 +1,7 @@
 package com.jgonfer.pwned.activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -11,6 +13,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import com.jgonfer.pwned.R;
 import com.jgonfer.pwned.connection.requests.AllBreachedServicesListRequest;
@@ -19,18 +23,24 @@ import com.jgonfer.pwned.fragment.RankingFragment;
 import com.jgonfer.pwned.fragment.SearchFragment;
 import com.jgonfer.pwned.utils.RealmHelper;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends BaseActivity
         implements AllBreachedServicesListRequest.OnLoginResponseListener {
 
-    AllBreachedServicesListRequest mAllBreachedServiceListRequest;
-
+    @BindView(R.id.flContent)
+    FrameLayout bodyContainer;
+    
     private CompositeSubscription mCompositeSubscription;
     private DrawerLayout mDrawer;
     private NavigationView nvDrawer;
     private Fragment displayedFragment = null;
-    private int displayedView = R.id.nav_manual;
+    private int displayedView = R.id.nav_manual, mShortAnimationDuration;
+
+    Unbinder unbinder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +50,18 @@ public class MainActivity extends BaseActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        View rootView = getWindow().getDecorView().getRootView();
+        unbinder = ButterKnife.bind(this, rootView);
+
+        mShortAnimationDuration = getResources().getInteger(
+                android.R.integer.config_shortAnimTime);
         mDrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, mDrawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this,
+                mDrawer,
+                toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
         mDrawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -53,15 +72,6 @@ public class MainActivity extends BaseActivity
         displayedView = RealmHelper.getDisplayedView();
         displayView(displayedView, false);
         setTitleForNavigationView(false);
-
-        /*
-        if (mAllBreachedServiceListRequest == null) {
-            mAllBreachedServiceListRequest = new AllBreachedServicesListRequest(this);
-        } else if (mAllBreachedServiceListRequest.getBreachedServiceListRequestCallback() == null) {
-            mAllBreachedServiceListRequest.setBreachedServiceListRequestCallback(this);
-        }
-        mAllBreachedServiceListRequest.getAllBreachedServices(this);
-        */
     }
 
     @Override
@@ -107,7 +117,7 @@ public class MainActivity extends BaseActivity
     public void displayView(int itemId, boolean isDrawerItem) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Class fragmentClass;
-        FragmentManager fragmentManager = getSupportFragmentManager();
+        final FragmentManager fragmentManager = getSupportFragmentManager();
         String title = setTitleForNavigationView(false);
         Fragment fragmentRecovered = fragmentManager.findFragmentByTag(title);
         if (fragmentRecovered == null || isDrawerItem) {
@@ -143,17 +153,32 @@ public class MainActivity extends BaseActivity
                 }
             }
 
-            // Insert the fragment by replacing any existing fragment
-            for (int i = 0; i < fragmentstoPopBackCounter; ++i) {
-                fragmentManager.popBackStack();
-            }
+            final String finalFragmentTitle = fragmentTitle;
+            final String finalTitle = title;
+            final int finalFragmentstoPopBackCounter = fragmentstoPopBackCounter;
+            setTitle("");
+            bodyContainer.animate()
+                    .alpha(0f)
+                    .setDuration(mShortAnimationDuration)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            // Insert the fragment by replacing any existing fragment
+                            for (int i = 0; i < finalFragmentstoPopBackCounter; ++i) {
+                                fragmentManager.popBackStack();
+                            }
 
-            title = setTitleForNavigationView(false);
+                            fragmentManager.beginTransaction()
+                                    .replace(R.id.flContent, displayedFragment, finalTitle)
+                                    .addToBackStack(finalFragmentTitle)
+                                    .commit();
 
-            fragmentManager.beginTransaction()
-                    .replace(R.id.flContent, displayedFragment, title)
-                    .addToBackStack(fragmentTitle)
-                    .commit();
+                            bodyContainer.animate()
+                                    .alpha(1f)
+                                    .setDuration(mShortAnimationDuration)
+                                    .setListener(null);
+                        }
+                    });
         }
     }
 
@@ -188,7 +213,9 @@ public class MainActivity extends BaseActivity
             }
         } else {
             if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                FragmentManager.BackStackEntry entry = getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount() - 1);
+                FragmentManager.BackStackEntry entry = getSupportFragmentManager()
+                        .getBackStackEntryAt(
+                                getSupportFragmentManager().getBackStackEntryCount() - 1);
                 title = entry.getName();
                 setTitle(title);
             }
@@ -215,12 +242,29 @@ public class MainActivity extends BaseActivity
                     System.exit(1);
                     break;
                 case 2:
-                    nvDrawer.getMenu().getItem(0).setChecked(true);
-                    displayedView = R.id.nav_manual;
-                    setTitleForNavigationView(true);
+                    setTitle("");
+                    bodyContainer.animate()
+                            .alpha(0f)
+                            .setDuration(mShortAnimationDuration)
+                            .setListener(new AnimatorListenerAdapter() {
+                                @Override
+                                public void onAnimationEnd(Animator animation) {
+                                    nvDrawer.getMenu().getItem(0).setChecked(true);
+                                    displayedView = R.id.nav_manual;
+                                    setTitleForNavigationView(true);
+                                    MainActivity.super.onBackPressed();
+
+                                    bodyContainer.animate()
+                                            .alpha(1f)
+                                            .setDuration(mShortAnimationDuration)
+                                            .setListener(null);
+                                }
+                            });
+                    break;
+                default:
+                    super.onBackPressed();
                     break;
             }
-            super.onBackPressed();
         }
     }
 
@@ -247,14 +291,19 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void onAllBreachedServicesListResponse() {
-        Log.d(MainActivity.class.getSimpleName(), "onAllBreachedServicesListResponse()");
+    public void onDestroy() {
+        super.onDestroy();
 
-        //refreshListViewData(true);
+        unbinder.unbind();
+    }
+
+    @Override
+    public void onAllBreachedServicesListResponse() {
+        Log.d(MainActivity.class.getSimpleName(), "Success!");
     }
 
     @Override
     public void onAllBreachedServicesListErrorResponse(String errorMessage) {
-        Log.d(MainActivity.class.getSimpleName(), "onAllBreachedServicesListErrorResponse(): " + errorMessage);
+        Log.d(MainActivity.class.getSimpleName(), "Error: " + errorMessage);
     }
 }
