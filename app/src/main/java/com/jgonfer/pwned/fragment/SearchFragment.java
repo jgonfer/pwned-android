@@ -210,6 +210,7 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
                     mSearchToolbox.startAnimation(slideDown);
                 } else {
                     mSearchToolbox.startAnimation(slideUp);
+                    Utils.hideKeyboard(mContext, mSearchEditText);
                 }
             }
         });
