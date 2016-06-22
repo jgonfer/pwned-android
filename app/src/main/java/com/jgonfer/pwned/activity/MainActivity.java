@@ -172,6 +172,7 @@ public class MainActivity extends BaseActivity
                                     .replace(R.id.flContent, displayedFragment, finalTitle)
                                     .addToBackStack(finalFragmentTitle)
                                     .commit();
+                            setTitle(finalTitle);
 
                             bodyContainer.animate()
                                     .alpha(1f)

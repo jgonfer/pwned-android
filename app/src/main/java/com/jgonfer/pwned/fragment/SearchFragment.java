@@ -44,6 +44,7 @@ import java.util.List;
 import butterknife.BindDrawable;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 
 
@@ -59,6 +60,7 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
     @BindView(R.id.drawerList) RecyclerView mRecyclerView;
     @BindView(R.id.search_button_username_email) ImageButton mSearchButton;
     @BindView(R.id.search_toolbox) LinearLayout mSearchToolbox;
+    @BindView(R.id.body_search_fragment) LinearLayout mBodySearchFragment;
 
     @BindDrawable(R.drawable.search_user) Drawable search_user_drawable;
     @BindDrawable(R.drawable.search_mail) Drawable search_email_drawable;
@@ -210,7 +212,7 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
                     mSearchToolbox.startAnimation(slideDown);
                 } else {
                     mSearchToolbox.startAnimation(slideUp);
-                    Utils.hideKeyboard(mContext, mSearchEditText);
+                    hideKeyboard();
                 }
             }
         });
@@ -263,7 +265,10 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
         return rootView;
     }
 
-
+    @OnClick(R.id.body_search_fragment)
+    public void hideKeyboard() {
+        Utils.hideKeyboard(mContext, mSearchEditText);
+    }
 
     private void setEmailEndingIntoSearchEditText(String emailEnding) {
         String searchText = mSearchEditText.getText().toString();
