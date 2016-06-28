@@ -15,7 +15,8 @@
         android:orientation="vertical"
         android:gravity="center_horizontal"
         android:paddingBottom="5dp"
-        >
+        android:clickable="true"
+        android:foreground="?android:attr/selectableItemBackground">
 
         <ImageView
             android:id="@+id/info_trip_icon"
