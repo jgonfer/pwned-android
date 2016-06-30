@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -58,6 +59,7 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
     @BindView(R.id.search_tool_hotmail) TextView mToolHotmail;
     @BindView(R.id.search_tool_gmx) TextView mToolGmx;
     @BindView(R.id.drawerList) RecyclerView mRecyclerView;
+    @BindView(R.id.swipeRefreshLayout) SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.search_button_username_email) ImageButton mSearchButton;
     @BindView(R.id.search_toolbox) LinearLayout mSearchToolbox;
     @BindView(R.id.body_search_fragment) LinearLayout mBodySearchFragment;
@@ -112,6 +114,17 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
 
                 }
             }));
+            mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (mSearchToolbox.getVisibility() == View.VISIBLE) {
+                        mSearchToolbox.startAnimation(slideUp);
+                        mSearchEditText.clearFocus();
+                        hideKeyboard();
+                    }
+                    return false;
+                }
+            });
         }
 
         mSearchButton.setOnClickListener(new View.OnClickListener() {
@@ -144,6 +157,10 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
                     refreshListViewData(true);
                 }
                 mSearchToolbox.setVisibility(View.GONE);
+                if (mBreachedServiceListRequest != null) {
+                    mSwipeRefreshLayout.setEnabled(true);
+                    mSwipeRefreshLayout.setRefreshing(true);
+                }
             }
 
             @Override
@@ -262,6 +279,8 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
             refreshListViewData(true);
         }
 
+        mSwipeRefreshLayout.setEnabled(false);
+
         return rootView;
     }
 
@@ -299,6 +318,12 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
     @Override
     public void onDetach() {
         super.onDetach();
+    }
+
+    @Override
+    public void onDestroyView() {
+        mSwipeRefreshLayout.removeAllViews();
+        super.onDestroyView();
     }
 
     @Override
@@ -411,10 +436,18 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
         isDownloaded = false;
         mSearchEditText.clearFocus();
         email = getEmailFromSearchEditText();
-        refreshListViewWithoutData(true);
-        String query = getEmailFromSearchEditText();
-        mBreachedServiceListRequest = new BreachedServicesListRequest(this);
-        mBreachedServiceListRequest.getBreachedServices(this, query);
+        if (email.isEmpty()) {
+
+        } else {
+            if (mSearchToolbox.getVisibility() == View.GONE) {
+                mSwipeRefreshLayout.setEnabled(true);
+                mSwipeRefreshLayout.setRefreshing(true);
+            }
+            refreshListViewWithoutData(true);
+            String query = getEmailFromSearchEditText();
+            mBreachedServiceListRequest = new BreachedServicesListRequest(this);
+            mBreachedServiceListRequest.getBreachedServices(this, query);
+        }
     }
 
     private void refreshListViewData(boolean shouldReload) {
@@ -443,19 +476,25 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
     public void onBreachedServicesListResponse() {
         Log.d(MainActivity.class.getSimpleName(), "onBreachedServicesListResponse()");
         isDownloaded = true;
+        mSwipeRefreshLayout.setRefreshing(false);
+        mSwipeRefreshLayout.setEnabled(false);
         boolean isHidden = mSearchToolbox.getVisibility() == View.GONE;
         if (isHidden) {
             refreshListViewData(true);
         }
+        mBreachedServiceListRequest = null;
     }
 
     @Override
     public void onBreachedServicesListErrorResponse(String errorMessage) {
         Log.d(MainActivity.class.getSimpleName(), "onBreachedServicesListErrorResponse(): " + errorMessage);
         isDownloaded = true;
+        mSwipeRefreshLayout.setRefreshing(false);
+        mSwipeRefreshLayout.setEnabled(false);
         boolean isHidden = mSearchToolbox.getVisibility() == View.GONE;
         if (isHidden) {
             refreshListViewData(true);
         }
+        mBreachedServiceListRequest = null;
     }
 }
