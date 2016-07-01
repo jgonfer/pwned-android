@@ -6,6 +6,7 @@ package com.jgonfer.pwned.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -37,6 +38,7 @@ public class RankingFragment extends BaseFragment implements AllBreachedServices
     Unbinder unbinder;
 
     @BindView(R.id.drawerList) RecyclerView mRecyclerView;
+    @BindView(R.id.swipeRefreshLayout) SwipeRefreshLayout mSwipeRefreshLayout;
 
     AllBreachedServicesListRequest mAllBreachedServiceListRequest;
 
@@ -96,14 +98,20 @@ public class RankingFragment extends BaseFragment implements AllBreachedServices
                 }
             }));
         }
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                downloadBreachedServices();
+            }
+        });
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
+            }
+        });
+        downloadBreachedServices();
 
-        if (mAllBreachedServiceListRequest == null) {
-            mAllBreachedServiceListRequest = new AllBreachedServicesListRequest(this);
-        } else if (mAllBreachedServiceListRequest.getBreachedServiceListRequestCallback() == null) {
-            mAllBreachedServiceListRequest.setBreachedServiceListRequestCallback(this);
-        }
-        mAllBreachedServiceListRequest.getAllBreachedServices(this);
-        
         return rootView;
     }
 
@@ -111,7 +119,6 @@ public class RankingFragment extends BaseFragment implements AllBreachedServices
     public void onViewStateRestored(Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
 
-        //((MainActivity) getActivity()).sendScreenName("About");
         refreshListViewData(true);
     }
 
@@ -127,10 +134,31 @@ public class RankingFragment extends BaseFragment implements AllBreachedServices
     }
 
     @Override
+    public void onDestroyView() {
+        mSwipeRefreshLayout.removeAllViews();
+        super.onDestroyView();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
 
         unbinder.unbind();
+    }
+
+    public void downloadBreachedServices() {
+        if (mAllBreachedServiceListRequest == null) {
+            mAllBreachedServiceListRequest = new AllBreachedServicesListRequest(this);
+        } else if (mAllBreachedServiceListRequest.getBreachedServiceListRequestCallback() == null) {
+            mAllBreachedServiceListRequest.setBreachedServiceListRequestCallback(this);
+        }
+        mSwipeRefreshLayout.post(new Runnable() {
+            @Override
+            public void run() {
+                mSwipeRefreshLayout.setRefreshing(true);
+            }
+        });
+        mAllBreachedServiceListRequest.getAllBreachedServices(this);
     }
 
     public List<BreachedServiceDrawerItem> getData() {
@@ -255,11 +283,13 @@ public class RankingFragment extends BaseFragment implements AllBreachedServices
     public void onAllBreachedServicesListResponse() {
         Log.d(MainActivity.class.getSimpleName(), "onAllBreachedServicesListResponse()");
 
+        mSwipeRefreshLayout.setRefreshing(false);
         refreshListViewData(true);
     }
 
     @Override
     public void onAllBreachedServicesListErrorResponse(String errorMessage) {
+        mSwipeRefreshLayout.setRefreshing(false);
         Log.d(MainActivity.class.getSimpleName(), "onAllBreachedServicesListErrorResponse(): " + errorMessage);
     }
 }
