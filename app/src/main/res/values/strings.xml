@@ -14,6 +14,10 @@
     <string name="nav_menu_password_title">Creator</string>
     <string name="nav_menu_donate_title">Donate</string>
 
+    <!-- Special Breaches -->
+    <string name="nav_sensitive_title">Sensitive breaches</string>
+    <string name="nav_retired_title">Retired breaches</string>
+
     <!-- Info Tip -->
     <string name="info_tip_title_good_news">Good news!</string>
     <string name="info_tip_description_good_news">No breached accounts and no pastes have been found.</string>

@@ -82,7 +82,8 @@ public class BreachedServiceDrawerAdapter extends RecyclerView.Adapter<BreachedS
             }
             holder.mInfoTipShowMe.setTextColor(mContext.getResources().getColor(color));
         } else {
-            BreachedServiceDrawerItem current = mData.get(position - 1);
+            int arrayOffset = mInfoData == null ? 0 : 1;
+            BreachedServiceDrawerItem current = mData.get(position - arrayOffset);
             BreachedService breachedService = current.getBreachedService();
             holder.mBreachedServiceTitle.setText(breachedService.getTitle());
 
@@ -136,6 +137,10 @@ public class BreachedServiceDrawerAdapter extends RecyclerView.Adapter<BreachedS
     }
 
     public boolean isInfoTip(int position) {
+        if (mInfoData == null) {
+            return false;
+        }
+
         if (mType == InfoTip.NONE) {
             return false;
         }
@@ -149,7 +154,15 @@ public class BreachedServiceDrawerAdapter extends RecyclerView.Adapter<BreachedS
 
     @Override
     public int getItemCount() {
-        return mData.size() + mInfoData.size();
+        int sizeData = 0;
+        if (mData != null) {
+            sizeData = mData.size();
+        }
+        int sizeInfoData = 0;
+        if (mInfoData != null) {
+            sizeInfoData = mInfoData.size();
+        }
+        return sizeData + sizeInfoData;
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {

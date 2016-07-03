@@ -21,6 +21,7 @@ import com.jgonfer.pwned.connection.requests.AllBreachedServicesListRequest;
 import com.jgonfer.pwned.fragment.PasswordFragment;
 import com.jgonfer.pwned.fragment.RankingFragment;
 import com.jgonfer.pwned.fragment.SearchFragment;
+import com.jgonfer.pwned.fragment.SpecialListFragment;
 import com.jgonfer.pwned.utils.RealmHelper;
 
 import butterknife.BindView;
@@ -29,7 +30,7 @@ import butterknife.Unbinder;
 import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends BaseActivity
-        implements AllBreachedServicesListRequest.OnLoginResponseListener {
+        implements AllBreachedServicesListRequest.OnLoginResponseListener, SearchFragment.SearchFragmentListener, DrawerLayout.DrawerListener {
 
     @BindView(R.id.flContent)
     FrameLayout bodyContainer;
@@ -50,8 +51,7 @@ public class MainActivity extends BaseActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        View rootView = getWindow().getDecorView().getRootView();
-        unbinder = ButterKnife.bind(this, rootView);
+        unbinder = ButterKnife.bind(this);
 
         mShortAnimationDuration = getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
@@ -62,7 +62,7 @@ public class MainActivity extends BaseActivity
                 toolbar,
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close);
-        mDrawer.setDrawerListener(toggle);
+        mDrawer.addDrawerListener(this);
         toggle.syncState();
 
         nvDrawer = (NavigationView) findViewById(R.id.nav_view);
@@ -117,12 +117,14 @@ public class MainActivity extends BaseActivity
     public void displayView(int itemId, boolean isDrawerItem) {
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Class fragmentClass;
+        boolean isNavigation = false;
         final FragmentManager fragmentManager = getSupportFragmentManager();
         String title = setTitleForNavigationView(false);
         Fragment fragmentRecovered = fragmentManager.findFragmentByTag(title);
         if (fragmentRecovered == null || isDrawerItem) {
             int fragmentstoPopBackCounter = fragmentManager.getBackStackEntryCount() - 1;
             String fragmentTitle = getResources().getString(R.string.nav_menu_search_title);
+            mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
 
             switch(itemId) {
                 case R.id.nav_manual:
@@ -141,6 +143,18 @@ public class MainActivity extends BaseActivity
                     fragmentClass = PasswordFragment.class;
                     fragmentTitle = getResources().getString(R.string.nav_menu_donate_title);
                     break;
+                case R.string.nav_sensitive_title:
+                    fragmentClass = SpecialListFragment.class;
+                    fragmentTitle = getResources().getString(R.string.nav_sensitive_title);
+                    isNavigation = true;
+                    mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    break;
+                case R.string.nav_retired_title:
+                    fragmentClass = SpecialListFragment.class;
+                    fragmentTitle = getResources().getString(R.string.nav_retired_title);
+                    isNavigation = true;
+                    mDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                    break;
                 default:
                     fragmentClass = SearchFragment.class;
             }
@@ -148,6 +162,12 @@ public class MainActivity extends BaseActivity
             if (displayedFragment == null) {
                 try {
                     displayedFragment = (Fragment) fragmentClass.newInstance();
+                    if (displayedFragment instanceof SearchFragment) {
+                        ((SearchFragment) displayedFragment).setListener(this);
+                    } else if (displayedFragment instanceof SpecialListFragment) {
+                        boolean isSensitive = itemId == R.string.nav_sensitive_title;
+                        ((SpecialListFragment) displayedFragment).setSpecialType(isSensitive);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -156,6 +176,7 @@ public class MainActivity extends BaseActivity
             final String finalFragmentTitle = fragmentTitle;
             final String finalTitle = title;
             final int finalFragmentstoPopBackCounter = fragmentstoPopBackCounter;
+            final boolean finalIsNavigation = isNavigation;
             setTitle("");
             bodyContainer.animate()
                     .alpha(0f)
@@ -164,15 +185,28 @@ public class MainActivity extends BaseActivity
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             // Insert the fragment by replacing any existing fragment
-                            for (int i = 0; i < finalFragmentstoPopBackCounter; ++i) {
-                                fragmentManager.popBackStack();
-                            }
+                            try {
+                                for (int i = 0; i < finalFragmentstoPopBackCounter; ++i) {
+                                    fragmentManager.popBackStack();
+                                }
 
-                            fragmentManager.beginTransaction()
-                                    .replace(R.id.flContent, displayedFragment, finalTitle)
-                                    .addToBackStack(finalFragmentTitle)
-                                    .commit();
-                            setTitle(finalFragmentTitle);
+                                if (finalIsNavigation) {
+                                    getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                                    fragmentManager.beginTransaction()
+                                            .add(R.id.flContent, displayedFragment, finalTitle)
+                                            .addToBackStack(finalFragmentTitle)
+                                            .commit();
+                                } else {
+                                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+                                    fragmentManager.beginTransaction()
+                                            .replace(R.id.flContent, displayedFragment, finalTitle)
+                                            .addToBackStack(finalFragmentTitle)
+                                            .commit();
+                                }
+                                setTitle(finalFragmentTitle);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
 
                             bodyContainer.animate()
                                     .alpha(1f)
@@ -211,14 +245,34 @@ public class MainActivity extends BaseActivity
                     title = getResources().getString(R.string.nav_menu_donate_title);
                     setTitle(title);
                     break;
+                case R.string.nav_sensitive_title:
+                    title = getResources().getString(R.string.nav_sensitive_title);
+                    setTitle(title);
+                    break;
+                case R.string.nav_retired_title:
+                    title = getResources().getString(R.string.nav_retired_title);
+                    setTitle(title);
+                    break;
             }
         } else {
-            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                FragmentManager.BackStackEntry entry = getSupportFragmentManager()
-                        .getBackStackEntryAt(
-                                getSupportFragmentManager().getBackStackEntryCount() - 1);
-                title = entry.getName();
-                setTitle(title);
+            switch (displayedView) {
+                case R.string.nav_sensitive_title:
+                    title = getResources().getString(R.string.nav_sensitive_title);
+                    setTitle(title);
+                    break;
+                case R.string.nav_retired_title:
+                    title = getResources().getString(R.string.nav_retired_title);
+                    setTitle(title);
+                    break;
+                default:
+                    if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                        FragmentManager.BackStackEntry entry = getSupportFragmentManager()
+                                .getBackStackEntryAt(
+                                        getSupportFragmentManager().getBackStackEntryCount() - 1);
+                        title = entry.getName();
+                        setTitle(title);
+                    }
+                    break;
             }
         }
         return title;
@@ -292,13 +346,6 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        unbinder.unbind();
-    }
-
-    @Override
     public void onAllBreachedServicesListResponse() {
         Log.d(MainActivity.class.getSimpleName(), "Success!");
     }
@@ -306,5 +353,34 @@ public class MainActivity extends BaseActivity
     @Override
     public void onAllBreachedServicesListErrorResponse(String errorMessage) {
         Log.d(MainActivity.class.getSimpleName(), "Error: " + errorMessage);
+    }
+
+    @Override
+    public void specialBreachedServices(boolean isSensitive) {
+        int itemId = isSensitive ? R.string.nav_sensitive_title : R.string.nav_retired_title;
+        displayedView = itemId;
+        RealmHelper.setDisplayedView(displayedView);
+        displayedFragment = null;
+        displayView(itemId, false);
+    }
+
+    @Override
+    public void onDrawerSlide(View drawerView, float slideOffset) {
+
+    }
+
+    @Override
+    public void onDrawerOpened(View drawerView) {
+        Log.d("Hola", "onDrawerOpened");
+    }
+
+    @Override
+    public void onDrawerClosed(View drawerView) {
+        Log.d("Hola", "onDrawerClosed");
+    }
+
+    @Override
+    public void onDrawerStateChanged(int newState) {
+        Log.d("Hola", "onDrawerStateChanged");
     }
 }

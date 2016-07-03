@@ -292,6 +292,25 @@ public class RealmHelper {
         return breachedServices.toArray(new BreachedService[breachedServices.size()]);
     }
 
+    public static BreachedService[] getBreachedServicesBySpecialType(boolean isSensitive) {
+        Realm realm = Realm.getDefaultInstance();
+
+        RealmResults<BreachedService> results;
+
+        if (isSensitive) {
+            results = realm.where(BreachedService.class).equalTo("IsSensitive", true).findAll();
+        } else {
+            results = realm.where(BreachedService.class).equalTo("IsRetired", true).findAll();
+        }
+
+        ArrayList<BreachedService> breachedServices = new ArrayList<>();
+        for (BreachedService s : results) {
+            breachedServices.add(s);
+        }
+
+        return breachedServices.toArray(new BreachedService[breachedServices.size()]);
+    }
+
     public static RealmString createOrUpdateDataClass(String title) {
         Realm realm = Realm.getDefaultInstance();
 

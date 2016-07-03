@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,6 +40,7 @@ import com.jgonfer.pwned.model.realm.BreachedService;
 import com.jgonfer.pwned.utils.RealmHelper;
 import com.jgonfer.pwned.utils.Utils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,6 +73,7 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
 
     private BreachedServicesListRequest mBreachedServiceListRequest;
     private Context mContext;
+    private SearchFragmentListener mListener;
     private static BreachedService[] mBreachedServices;
     private BreachedServiceDrawerAdapter mAdapter;
     private String email = "", emailInEditText = "", TAG = SearchFragment.class.getSimpleName();
@@ -78,6 +81,10 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
 
     public SearchFragment() {
 
+    }
+
+    public void setListener(SearchFragmentListener listener) {
+        this.mListener = listener;
     }
 
     Unbinder unbinder;
@@ -104,8 +111,12 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
                 @Override
                 public void onClick(View view, int position) {
                     //mDrawerListener.onDrawerItemSelected(view, position);
-                    if (mBreachedServices.length > position) {
-                        BreachedService breachedService = mBreachedServices[position];
+                    if (position > 0 && mBreachedServices.length > position - 1) {
+                        BreachedService breachedService = mBreachedServices[position - 1];
+                    } else if (mBreachedServices.length + 1 == position) {
+                        mListener.specialBreachedServices(true);
+                    } else if (mBreachedServices.length + 2 == position) {
+                        mListener.specialBreachedServices(false);
                     }
                 }
 
@@ -318,6 +329,17 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
     @Override
     public void onDetach() {
         super.onDetach();
+
+        try {
+            Field childFragmentManager = Fragment.class.getDeclaredField("mChildFragmentManager");
+            childFragmentManager.setAccessible(true);
+            childFragmentManager.set(this, null);
+
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -496,5 +518,9 @@ public class SearchFragment extends BaseFragment implements BreachedServicesList
             refreshListViewData(true);
         }
         mBreachedServiceListRequest = null;
+    }
+
+    public interface SearchFragmentListener {
+        void specialBreachedServices(boolean isSensitive);
     }
 }
