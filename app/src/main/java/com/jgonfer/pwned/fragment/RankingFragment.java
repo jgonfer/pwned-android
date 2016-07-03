@@ -67,7 +67,7 @@ public class RankingFragment extends BaseFragment implements AllBreachedServices
 
         unbinder = ButterKnife.bind(this, rootView);
 
-        mAdapter = new BreachedServiceDrawerAdapter(mContext, getData(), getInfoData(), getInfoTipType());
+        mAdapter = new BreachedServiceDrawerAdapter(mContext, getData(), null, null);
         if (mAdapter != null && mRecyclerView != null) {
             mRecyclerView.setAdapter(mAdapter);
             mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
@@ -263,7 +263,7 @@ public class RankingFragment extends BaseFragment implements AllBreachedServices
 
     private void refreshListViewData(boolean shouldReload) {
         mBreachedServices = RealmHelper.getBreachedServicesOrdered();
-        mAdapter = new BreachedServiceDrawerAdapter(mContext, getData(), getInfoData(), getInfoTipType());
+        mAdapter = new BreachedServiceDrawerAdapter(mContext, getData(), null, null);
         mAdapter.notifyDataSetChanged();
         if (shouldReload) {
             mRecyclerView.setAdapter(mAdapter);
@@ -272,7 +272,7 @@ public class RankingFragment extends BaseFragment implements AllBreachedServices
 
     private void refreshListViewWithoutData(boolean shouldReload) {
         mBreachedServices = null;
-        mAdapter = new BreachedServiceDrawerAdapter(mContext, getData(), getInfoData(), getInfoTipType());
+        mAdapter = new BreachedServiceDrawerAdapter(mContext, getData(), null, null);
         mAdapter.notifyDataSetChanged();
         if (shouldReload) {
             mRecyclerView.setAdapter(mAdapter);
